@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "voicebox-new",
+    "name": "搞怪语音盒",
     "slug": "voicebox-new",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,12 +18,25 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FF6B6B"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.kidoneself.voiceboxnew",
+      "permissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "46738a46-d12f-42e8-a3ff-470f20368936"
+      }
     }
   }
 }

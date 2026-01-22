@@ -1,0 +1,64 @@
+name: Build Android APK (Local)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 设置 Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 设置 Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 设置 Expo
+        run: |
+          npm install -g expo-cli eas-cli
+          npx expo install
+
+      - name: 预构建 Android
+        run: npx expo prebuild --platform android
+
+      - name: 生成 Keystore
+        run: |
+          keytool -genkeypair -v -storetype PKCS12 -keystore my-release-key.keystore \
+            -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass android -keypass android \
+            -dname "CN=VoiceBox, OU=Dev, O=VoiceBox, L=City, S=State, C=CN"
+
+      - name: 构建 APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+        env:
+          MYAPP_RELEASE_STORE_FILE: ../my-release-key.keystore
+          MYAPP_RELEASE_KEY_ALIAS: my-key-alias
+          MYAPP_RELEASE_STORE_PASSWORD: android
+          MYAPP_RELEASE_KEY_PASSWORD: android
+
+      - name: 上传 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: android/app/build/outputs/apk/release/app-release.apk
