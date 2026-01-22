@@ -1,0 +1,70 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 安装 CocoaPods
+        run: sudo gem install cocoapods
+
+      - name: 设置 Expo
+        run: |
+          npm install -g expo-cli eas-cli
+          npx expo install
+
+      - name: 预构建 iOS
+        run: npx expo prebuild --platform ios
+
+      - name: 安装 iOS 依赖
+        run: |
+          cd ios
+          pod install
+
+      - name: 创建临时证书和描述文件
+        env:
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          PROVISIONING_PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
+          P12_CERTIFICATE: ${{ secrets.P12_CERTIFICATE }}
+        run: |
+          # 这里需要你的开发者证书和描述文件
+          echo "需要配置开发者证书和描述文件"
+          echo "请在 GitHub Secrets 中添加："
+          echo "1. P12_CERTIFICATE (Base64 编码的 .p12 文件)"
+          echo "2. P12_PASSWORD (证书密码)"
+          echo "3. PROVISIONING_PROFILE (Base64 编码的 .mobileprovision 文件)"
+
+      - name: 构建 IPA
+        run: |
+          cd ios
+          xcodebuild -workspace VoiceboxNew.xcworkspace \
+            -scheme VoiceboxNew \
+            -configuration Release \
+            -archivePath build/VoiceboxNew.xcarchive \
+            archive
+
+          xcodebuild -exportArchive \
+            -archivePath build/VoiceboxNew.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist exportOptions.plist
+
+      - name: 上传 IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ios
+          path: ios/build/*.ipa
