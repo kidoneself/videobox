@@ -59,17 +59,14 @@ export default function App() {
   ];
 
   useEffect(() => {
-    // 配置音频模式，允许与其他应用（如微信）共存
     Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
       staysActiveInBackground: true,
-      shouldDuckAndroid: false,           // 不降低其他音频音量
-      playThroughEarpieceAndroid: false,  // 使用扬声器播放
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
       allowsRecordingIOS: false,
-      interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-      interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX, // 不混音，独立播放
-    }).catch(err => {
-      console.log('音频模式设置失败:', err);
+      interruptionModeIOS: 1,
+      interruptionModeAndroid: 1,
     });
     loadVoiceList();
     
