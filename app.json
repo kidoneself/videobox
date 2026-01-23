@@ -49,6 +49,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "expo-av",
+      "./plugins/withRemovePermissions.js"
+    ],
     "extra": {
       "eas": {
         "projectId": "46738a46-d12f-42e8-a3ff-470f20368936"
