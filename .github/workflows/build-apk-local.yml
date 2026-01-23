@@ -36,8 +36,21 @@ jobs:
           npm install -g expo-cli eas-cli
           npx expo install
 
-      - name: 预构建 Android
-        run: npx expo prebuild --platform android
+      - name: 预构建 Android（应用插件）
+        run: npx expo prebuild --platform android --clean
+
+      - name: 删除不需要的权限
+        run: |
+          cd android/app/src/main
+          if [ -f AndroidManifest.xml ]; then
+            # 删除录音权限
+            sed -i '/RECORD_AUDIO/d' AndroidManifest.xml
+            # 删除 READ_MEDIA 权限
+            sed -i '/READ_MEDIA/d' AndroidManifest.xml
+            # 删除 MANAGE_EXTERNAL_STORAGE 权限
+            sed -i '/MANAGE_EXTERNAL_STORAGE/d' AndroidManifest.xml
+            echo "已删除不需要的权限"
+          fi
 
       - name: 生成 Keystore
         run: |
